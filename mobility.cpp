@@ -177,7 +177,8 @@ void mobilityStateMachine(const ros::TimerEvent &)
             {
                 state_machine_msg.data = "TRANSLATING";//, " + converter.str();
                 //float angular_velocity = 0.2; //This is where we sill be changing fo HW 2
-                float angular_velocity = 3.2*(calculate_local_average_heading()-current_location.theta );
+
+                float angular_velocity = 3.2*(atan2(y_comp()-current_location.y ,x_comp() -current_location.x ));//atan2 here
                 //float angular_velocity = 3.2*(calculate_global_average_heading()-current_location.theta );
                 float linear_velocity = 0.1;
                 setVelocity(linear_velocity, angular_velocity);
@@ -423,7 +424,21 @@ void calculate_neighbors(string rover_name){
         }
     }
 }
+float x_comp(){
+    float u_x=0;
+    for (int i = 0; i<neighbors.size(); i++){
+        u_x += cos(neighbors[i].theta);
+    }
+    return u_x;
+}
+float y_comp(){
 
+    float u_y=0;
+    for (int i = 0; i<neighbors.size(); i++){
+        u_y += sin(neighbors[i].theta);
+    }
+    return u_y;
+}
 float calculate_local_average_heading(){
     float u_x=0;
     float u_y=0;
