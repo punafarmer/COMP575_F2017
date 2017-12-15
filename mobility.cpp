@@ -178,7 +178,8 @@ void mobilityStateMachine(const ros::TimerEvent &)
                 state_machine_msg.data = "TRANSLATING";//, " + converter.str();
                 //float angular_velocity = 0.2; //This is where we sill be changing fo HW 2
 
-                float angular_velocity = 3.2*(atan2(y_comp()-current_location.y ,x_comp() -current_location.x ));//atan2 here
+                float angular_velocity = 3.2*(atan2(y_comp()-current_location.y -sep_y()
+                                                    ,x_comp() -current_location.x -sep_x()));//atan2 here
                 //float angular_velocity = 3.2*(calculate_global_average_heading()-current_location.theta );
                 float linear_velocity = 0.1;
                 setVelocity(linear_velocity, angular_velocity);
@@ -449,4 +450,54 @@ float calculate_local_average_heading(){
     }
     local_average_heading = atan2(u_y,u_x);
     return local_average_heading;
+}
+
+
+int msg(){
+    int max_pose = 0;
+    int max_neighbors = 0;
+    for (int i = 0; i<std::vector<all_rovers>; i++){
+        for (int round; round<neighbors.size(); round++){
+            if (round>max_neighbors){
+                max_neighbors+=1;
+                max_pose = round;
+            }
+        }
+    } return max_pose;
+}
+vector stf(){
+    bool lead = False;
+    for (int i = 0; i<std::vector<all_rovers>; i++){
+        for (int round; round<neighbors.size(); round++){
+            if (round>max_neighbors and msg()== round){
+               lead = True;
+            }
+            else{
+                lead = False;
+            }
+        }
+    } return (msg(),lead);
+}
+
+float sep_x(){
+    float x_dist = 0;
+    for (int i=0; i<neighbors.size(); i++ ){
+        for (int j=0; j<neighbors.size(); j++){
+            if (i != j){
+               x_dist += cos(neighbors[j].theta)-cos(neighbors[i].theta);
+            }
+        }
+    }
+    return -1*x_dist;
+}
+float sep_y(){
+    float y_dist = 0;
+    for (int i=0; i<neighbors.size(); i++ ){
+        for (int j=0; j<neighbors.size(); j++){
+            if (i != j){
+               y_dist += sin(neighbors[j].theta) -sin(neighbors[i].theta);
+            }
+        }
+    }
+    return -1*y_dist;
 }
